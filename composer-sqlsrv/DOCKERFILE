@@ -1,0 +1,16 @@
+FROM composer:1
+RUN curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/msodbcsql17_17.5.2.2-1_amd64.apk && \
+    curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/mssql-tools_17.5.2.1-1_amd64.apk && \
+    apk add --allow-untrusted msodbcsql17_17.5.2.2-1_amd64.apk && \
+    apk add --allow-untrusted mssql-tools_17.5.2.1-1_amd64.apk && \
+    rm *.apk
+RUN apk update && \
+    apk add php7-dev php7-pear php7-pdo php7-openssl autoconf make g++ unixodbc-dev && \
+    pecl install sqlsrv && \
+    pecl install pdo_sqlsrv && \
+    apk add --no-cache libpng libpng-dev && docker-php-ext-install gd && apk del libpng-dev
+
+RUN echo extension=pdo_sqlsrv.so >> `php --ini | grep "Scan for additional .ini files" | sed -e "s|.*:\s*||"`/10_pdo_sqlsrv.ini && \
+    echo extension=sqlsrv.so >> `php --ini | grep "Scan for additional .ini files" | sed -e "s|.*:\s*||"`/00_sqlsrv.ini
+
+CMD ["sh"]
