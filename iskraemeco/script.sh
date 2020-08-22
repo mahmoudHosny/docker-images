@@ -16,4 +16,4 @@ echo extension=pdo_sqlsrv.so >> `php --ini | grep "Loaded Configuration File" | 
 echo extension=sqlsrv.so >> `php --ini | grep "Loaded Configuration File" | sed -e "s|.*:\s*||"` && \
 echo "ServerName iskeraemco" >> /etc/apache2/apache2.conf 
 a2enmod rewrite && chmod -R 777 storage
-service apache2 start
+# service apache2 start

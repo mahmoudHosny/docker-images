@@ -1,6 +1,19 @@
+FROM mahmoudhosny/composer_sqlsrv as build
+WORKDIR /app
+COPY github_pass.sh github_pass.sh
+RUN chmod +x github_pass.sh
+RUN git config --global credential.helper "/app/github_pass.sh"
+RUN git clone https://github.com/mahmoudHosny/iskrameko.git
+WORKDIR /app/iskrameko
+RUN composer install 
+RUN cp .env.example  .env && php artisan key:generate && php artisan storage:link && composer dump
+RUN php artisan migrate --seed  
+
 FROM php:apache-buster
 COPY 000-default.conf /etc/apache2/sites-available
 COPY script.sh script.sh
-COPY ./iskrameko .
-RUN chmod +x script.sh && ./script.sh && rm script.sh
-CMD [ "bash" ]
+COPY --from=build /app/iskrameko .
+RUN chmod +x script.sh && ./script.sh && rm script.sh && php artisan migrate
+# COPY httpd-foreground /usr/local/bin/
+EXPOSE 80
+CMD [ "service","apache2" ,"start"]
