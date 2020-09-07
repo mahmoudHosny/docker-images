@@ -7,13 +7,13 @@ RUN git clone https://github.com/mahmoudHosny/iskrameko.git
 WORKDIR /app/iskrameko
 RUN composer install 
 RUN cp .env.example  .env && php artisan key:generate && php artisan storage:link && composer dump
-RUN php artisan migrate --seed  
+RUN rm -r .git
 
 FROM php:apache-buster
 COPY 000-default.conf /etc/apache2/sites-available
 COPY script.sh script.sh
 COPY --from=build /app/iskrameko .
-RUN chmod +x script.sh && ./script.sh && rm script.sh && php artisan migrate
+RUN chmod +x script.sh && ./script.sh && rm script.sh
 # COPY httpd-foreground /usr/local/bin/
 EXPOSE 80
-CMD [ "service","apache2" ,"start"]
+CMD ["bash"]
